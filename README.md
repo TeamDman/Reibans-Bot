@@ -36,3 +36,7 @@ Sets the role to be used for muting people.
 #### /reibans lockdown <enable|disable> \[all]
 Prevents messages from being sent in the channel. 
 If `all` is specified, then it applies to all channels.
+
+#### /reibans lockdown setrole @role
+Sets the role for overwrites to be applied to when lockdown is enabled.
+Presumably, this is a role that everyone has, like @Lurker
