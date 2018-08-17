@@ -245,7 +245,6 @@ addCommand({name: "lockdown"}, async (message, args) => {
             }
             message.channel.send(new discord.RichEmbed().setColor("RED").setDescription(`Lockdown enabled.`));
             break;
-
         case "disable":
         case "false":
             var role = commands.getRole(config.lockdown_overwrites_role_id);
@@ -267,6 +266,51 @@ addCommand({name: "lockdown"}, async (message, args) => {
             message.channel.send(new discord.RichEmbed().setColor("GREEN").setDescription(`The config file has been updated.`));
             config.lockdown_overwrites_role_id = role.id;
             commands.writeConfig();
+            break;
+    }
+});
+
+addCommand({name: "perms"}, async (message, args) => {
+    switch (args.shift().toLowerCase()) {
+        case "backup":
+            let perms = {};
+            for (let channel of message.guild.channels.values()) {
+                perms[channel.id] = [];
+                for (let id of channel.permissionOverwrites.keys())
+                    perms[channel.id].push({
+                        id: id,
+                        allow: channel.permissionOverwrites.get(id).allowed.serialize(),
+                        deny: channel.permissionOverwrites.get(id).denied.serialize(),
+                        allowed:[],
+                        denied:[]
+                    });
+            }
+            for (let id of Object.values(perms))
+                for (let ov of Object.values(id)) {
+                    for (let type of Object.keys(ov.allow))
+                        if (ov.allow[type])
+                            ov.allowed.push(type);
+                    for (let type of Object.keys(ov.deny))
+                        if (ov.deny[type])
+                            ov.denied.push(type);
+                    delete ov.allow;
+                    delete ov.deny;
+                }
+            jsonfile.writeFile('permsbackup.json', perms, {spaces: 4}, err => {
+                if (err) console.error(err);
+            });
+            message.channel.send("Backup json created.");
+            break;
+        case "restore":
+            try {
+                let backup = require("./permsbackup.json")
+                for (let channel of Object.keys(backup)) {
+                    message.guild.channels.get(channel).replacePermissionOverwrites({overwrites:backup[channel],reason:"Restoring from backup"});
+                }
+                message.channel.send("Restored from permissions backup.");
+            } catch (e) {
+                console.error(e);
+            }
             break;
     }
 });
