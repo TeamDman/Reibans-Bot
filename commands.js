@@ -234,21 +234,34 @@ addCommand({name: "lockdown"}, async (message, args) => {
     switch (args.shift().toLowerCase()) {
         case "enable":
         case "true":
+            var role = commands.getRole(config.lockdown_overwrites_role_id);
+            if (role === null)
+                return message.channel.send("A lockdown role has not been specified.");
             if (args[0] && args[0] === "all")
                 for (let channel of message.guild.channels.values())
-                    channel.overwritePermissions(commands.getEveryoneRole(message.guild), {SEND_MESSAGES: false}).catch(e => console.error(e));
+                    channel.overwritePermissions(role, {SEND_MESSAGES: false}).catch(e => console.error(e));
             else
-                message.channel.overwritePermissions(commands.getEveryoneRole(message.guild), {SEND_MESSAGES: false}).catch(e => console.error(e));
+                message.channel.overwritePermissions(role, {SEND_MESSAGES: false}).catch(e => console.error(e));
             break;
 
         case "disable":
         case "false":
+            var role = commands.getRole(config.lockdown_overwrites_role_id);
+            if (role === null)
+                return message.channel.send("A lockdown role has not been specified.");
             if (args[0] && args[0] === "all")
                 for (let channel of message.guild.channels.values())
-                    channel.permissionOverwrites.get(commands.getEveryoneRole(message.guild).id).delete("pardoned");
+                    channel.permissionOverwrites.get(role.id).delete("pardoned");
             else
-                message.channel.permissionOverwrites.get(commands.getEveryoneRole(message.guild).id).delete("pardoned");
-
+                message.channel.permissionOverwrites.get(role.id).delete("pardoned");
+            break;
+        case "setrole":
+            var role = commands.getRole(args.shift());
+            if (role === null)
+                return message.channel.send("The role could not be found");
+            message.channel.send(new discord.RichEmbed().setColor("GREEN").setDescription(`The config file has been updated.`));
+            config.lockdown_overwrites_role_id = role.id;
+            commands.writeConfig();
             break;
     }
 });

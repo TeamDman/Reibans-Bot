@@ -4,6 +4,8 @@
     "presence": "everyone you mention",
     "report_channel_id": "",
     "mute_role_enabled": true,
+    "mute_role_id": "478360461817937921",
+    "lockdown_overwrites_role_id": "479906169209618432",
     "rei_irl": "<@!?129439015849033728>",
     "rei_timer": 10,
     "rei_banreason": "Pinged rei .-.",
@@ -38,6 +40,5 @@
         "{name} thinks ugandan knuckles memes are funny.",
         "{name} entered the lion's den.",
         "{name} doesn't feel so good."
-    ],
-    "mute_role_id": "478360461817937921"
+    ]
 }
