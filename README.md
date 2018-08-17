@@ -32,3 +32,7 @@ Sets the reporting channel. Empty for no report messages.
 
 #### /reibans set role @role
 Sets the role to be used for muting people.
+
+#### /reibans lockdown <enable|disable> \[all]
+Prevents messages from being sent in the channel. 
+If `all` is specified, then it applies to all channels.
