@@ -39,6 +39,13 @@ commands.getRole = identifier => {
     return null;
 };
 
+commands.getEveryoneRole = guild => {
+    for (let role of guild.roles.values())
+        if (role.name === "@everyone")
+            return role;
+    return null;
+};
+
 commands.getChannel = identifier => {
     if (typeof identifier === 'string')
         if (identifier.match(/\d+/g))
@@ -219,6 +226,29 @@ addCommand({name: "set"}, async (message, args) => {
             config.mute_role_id = role.id;
             commands.writeConfig();
             message.channel.send(new discord.RichEmbed().setColor("GREEN").setDescription(`The config file has been updated.`));
+            break;
+    }
+});
+
+addCommand({name: "lockdown"}, async (message, args) => {
+    switch (args.shift().toLowerCase()) {
+        case "enable":
+        case "true":
+            if (args[0] && args[0] === "all")
+                for (let channel of message.guild.channels.values())
+                    channel.overwritePermissions(commands.getEveryoneRole(message.guild), {SEND_MESSAGES: false}).catch(e => console.error(e));
+            else
+                message.channel.overwritePermissions(commands.getEveryoneRole(message.guild), {SEND_MESSAGES: false}).catch(e => console.error(e));
+            break;
+
+        case "disable":
+        case "false":
+            if (args[0] && args[0] === "all")
+                for (let channel of message.guild.channels.values())
+                    channel.permissionOverwrites.get(commands.getEveryoneRole(message.guild).id).delete("pardoned");
+            else
+                message.channel.permissionOverwrites.get(commands.getEveryoneRole(message.guild).id).delete("pardoned");
+
             break;
     }
 });
