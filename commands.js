@@ -237,11 +237,13 @@ addCommand({name: "lockdown"}, async (message, args) => {
             var role = commands.getRole(config.lockdown_overwrites_role_id);
             if (role === null)
                 return message.channel.send("A lockdown role has not been specified.");
-            if (args[0] && args[0] === "all")
+            if (args[0] && args[0] === "all") {
                 for (let channel of message.guild.channels.values())
                     channel.overwritePermissions(role, {SEND_MESSAGES: false}).catch(e => console.error(e));
-            else
+            } else {
                 message.channel.overwritePermissions(role, {SEND_MESSAGES: false}).catch(e => console.error(e));
+            }
+            message.channel.send(new discord.RichEmbed().setColor("RED").setDescription(`Lockdown enabled.`));
             break;
 
         case "disable":
@@ -249,11 +251,14 @@ addCommand({name: "lockdown"}, async (message, args) => {
             var role = commands.getRole(config.lockdown_overwrites_role_id);
             if (role === null)
                 return message.channel.send("A lockdown role has not been specified.");
-            if (args[0] && args[0] === "all")
+            if (args[0] && args[0] === "all") {
                 for (let channel of message.guild.channels.values())
-                    channel.permissionOverwrites.get(role.id).delete("pardoned");
-            else
-                message.channel.permissionOverwrites.get(role.id).delete("pardoned");
+                    if (channel.permissionOverwrites.get(role.id))
+                        channel.permissionOverwrites.get(role.id).delete("pardoned").catch(e => console.error(e));
+            } else {
+                message.channel.permissionOverwrites.get(role.id).delete("pardoned").catch(e => console.error(e));
+            }
+            message.channel.send(new discord.RichEmbed().setColor("RED").setDescription(`Lockdown disabled.`));
             break;
         case "setrole":
             var role = commands.getRole(args.shift());
