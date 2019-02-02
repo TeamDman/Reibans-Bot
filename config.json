@@ -2,7 +2,7 @@
     "prefix": "/reibans",
     "presence_type": 2,
     "presence": "everyone you mention",
-    "report_channel_id": "",
+    "report_channel_id": "452530315630477333",
     "mute_role_enabled": true,
     "mute_role_id": "478360461817937921",
     "lockdown_overwrites_role_id": "479906169209618432",
@@ -10,6 +10,8 @@
     "rei_timer": 10,
     "rei_banreason": "Pinged rei .-.",
     "rei_mute": true,
+    "role_alive": "384497390478163971",
+    "role_lurker": "383961038162231296",
     "funtext": [
         "{name} has sinned.",
         "{name} feels a menacing presence...",

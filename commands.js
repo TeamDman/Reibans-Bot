@@ -146,6 +146,37 @@ commands.handleRei = async (message) => {
         });
 };
 
+commands.purge = async (message, channel, members, amount) => {
+  let startSize = members.length;
+  let startTime = Date.now();
+  let report = '';
+  if (amount == 0 || amount > startSize)
+    amount = startSize;
+  console.log(`Puring with ${message} ${channel} ${members.length} ${amount}`);
+  commands.purging = true;
+  let purgingMessage = await channel.send("Purging...");
+  await commands.report('Snapped members:');
+  for (let i=0; i<amount && commands.purging; i++) {
+    let member = members.pop();
+    report += `${member.user.id} ${member}\n`;
+    if (i%Math.floor(Math.pow(members.length, 1/3))==0) {
+        await purgingMessage.edit(`Purging... ${Math.floor((i/amount)*100)}%`);
+        await commands.report(reports.pop());
+        report = '';
+    }
+  }
+  await purgingMessage.edit('Purging... 100%');
+  await channel.send(`Purged ${amount} members in ${Math.floor((Date.now()-startTime)/1000)} seconds.`);
+  commands.purging = false;
+  console.log(`Purge complete, purged ${amount} members.`);
+};
+
+commands.purging = false;
+
+commands.cancelPurge = () => {
+    commands.purging = true;
+}
+
 commands.onMessage = async message => {
     if (message.author.bot)
         return;
@@ -230,45 +261,46 @@ addCommand({name: "set"}, async (message, args) => {
     }
 });
 
-addCommand({name: "lockdown"}, async (message, args) => {
-    switch (args.shift().toLowerCase()) {
-        case "enable":
-        case "true":
-            var role = commands.getRole(config.lockdown_overwrites_role_id);
-            if (role === null)
-                return message.channel.send("A lockdown role has not been specified.");
-            if (args[0] && args[0] === "all") {
-                for (let channel of message.guild.channels.values())
-                    channel.overwritePermissions(role, {SEND_MESSAGES: false}).catch(e => console.error(e));
-            } else {
-                message.channel.overwritePermissions(role, {SEND_MESSAGES: false}).catch(e => console.error(e));
-            }
-            message.channel.send(new discord.RichEmbed().setColor("RED").setDescription(`Lockdown enabled.`));
-            break;
-        case "disable":
-        case "false":
-            var role = commands.getRole(config.lockdown_overwrites_role_id);
-            if (role === null)
-                return message.channel.send("A lockdown role has not been specified.");
-            if (args[0] && args[0] === "all") {
-                for (let channel of message.guild.channels.values())
-                    if (channel.permissionOverwrites.get(role.id))
-                        channel.permissionOverwrites.get(role.id).delete("pardoned").catch(e => console.error(e));
-            } else {
-                message.channel.permissionOverwrites.get(role.id).delete("pardoned").catch(e => console.error(e));
-            }
-            message.channel.send(new discord.RichEmbed().setColor("RED").setDescription(`Lockdown disabled.`));
-            break;
-        case "setrole":
-            var role = commands.getRole(args.shift());
-            if (role === null)
-                return message.channel.send("The role could not be found");
-            message.channel.send(new discord.RichEmbed().setColor("GREEN").setDescription(`The config file has been updated.`));
-            config.lockdown_overwrites_role_id = role.id;
-            commands.writeConfig();
-            break;
-    }
-});
+// Issue restoring perms to previous state, disabling for now.
+// addCommand({name: "lockdown"}, async (message, args) => {
+//     switch (args.shift().toLowerCase()) {
+//         case "enable":
+//         case "true":
+//             var role = commands.getRole(config.lockdown_overwrites_role_id);
+//             if (role === null)
+//                 return message.channel.send("A lockdown role has not been specified.");
+//             if (args[0] && args[0] === "all") {
+//                 for (let channel of message.guild.channels.values())
+//                     channel.overwritePermissions(role, {SEND_MESSAGES: false}).catch(e => console.error(e));
+//             } else {
+//                 message.channel.overwritePermissions(role, {SEND_MESSAGES: false}).catch(e => console.error(e));
+//             }
+//             message.channel.send(new discord.RichEmbed().setColor("RED").setDescription(`Lockdown enabled.`));
+//             break;
+//         case "disable":
+//         case "false":
+//             var role = commands.getRole(config.lockdown_overwrites_role_id);
+//             if (role === null)
+//                 return message.channel.send("A lockdown role has not been specified.");
+//             if (args[0] && args[0] === "all") {
+//                 for (let channel of message.guild.channels.values())
+//                     if (channel.permissionOverwrites.get(role.id))
+//                         channel.permissionOverwrites.get(role.id).delete("pardoned").catch(e => console.error(e));
+//             } else {
+//                 message.channel.permissionOverwrites.get(role.id).delete("pardoned").catch(e => console.error(e));
+//             }
+//             message.channel.send(new discord.RichEmbed().setColor("RED").setDescription(`Lockdown disabled.`));
+//             break;
+//         case "setrole":
+//             var role = commands.getRole(args.shift());
+//             if (role === null)
+//                 return message.channel.send("The role could not be found");
+//             message.channel.send(new discord.RichEmbed().setColor("GREEN").setDescription(`The config file has been updated.`));
+//             config.lockdown_overwrites_role_id = role.id;
+//             commands.writeConfig();
+//             break;
+//     }
+// });
 
 addCommand({name: "perms"}, async (message, args) => {
     switch (args.shift().toLowerCase()) {
@@ -313,4 +345,18 @@ addCommand({name: "perms"}, async (message, args) => {
             }
             break;
     }
+});
+
+addCommand({name: "snap"}, async (message, args) => {
+    message.channel.send("Oh snap!");
+    let purge = message.guild.members
+        .filter(m => 
+            !m.user.bot && 
+            m.roles.size == m.roles.has(config.role_lurker) + m.roles.has(config.role_alive) + 1
+        ).array();
+    commands.purge(message, message.channel, purge, parseInt(args.shift() || "0"));
+});
+
+addCommand({name: "stopsnap"}, async (message, args) => {
+    commands.cancelPurge();
 });
