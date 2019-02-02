@@ -358,7 +358,7 @@ addCommand({name: "snap"}, async (message, args) => {
     let purge = message.guild.members
         .filter(m => 
             !m.user.bot && 
-            m.roles.size == m.roles.has(config.role_lurker) + m.roles.has(config.role_alive) + 1
+            m.roles.size == m.roles.has(config.role_lurker) + m.roles.has(config.role_events) + 1
         ).array();
     commands.purge(message, message.channel, purge, parseInt(args.shift() || "0"));
 });
