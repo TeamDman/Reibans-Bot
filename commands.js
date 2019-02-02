@@ -158,10 +158,16 @@ commands.purge = async (message, channel, members, amount) => {
   await commands.report('Snapped members:');
   for (let i=0; i<amount && commands.purging; i++) {
     let member = members.pop();
+    try {
+        await member.kick('Oh snap!');
+    } catch (e) {
+        console.error(`Failed kicking user: ${e}`);
+    }
     report += `${member.user.id} ${member}\n`;
-    if (i%Math.floor(Math.pow(members.length, 1/3))==0) {
+    // if (i%Math.floor(Math.pow(members.length, 1/3))==0) {
+    if (i%10 == 0) {
         await purgingMessage.edit(`Purging... ${Math.floor((i/amount)*100)}%`);
-        await commands.report(reports.pop());
+        await commands.report(report);
         report = '';
     }
   }
