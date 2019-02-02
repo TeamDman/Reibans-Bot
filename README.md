@@ -33,6 +33,11 @@ Sets the reporting channel. Empty for no report messages.
 #### /reibans set role @role
 Sets the role to be used for muting people.
 
+#### /reibans snap [amount]
+Kicks all users that ONLY have the specified Alive and/or Lurker roles as defined in the config.
+If amount is omitted, then it's set to snap EVERYONE that meets the above criteria.
+
+#LOCKDOWN COMMANDS DISABLED DUE TO ISSUES
 #### /reibans lockdown <enable|disable> \[all]
 Prevents messages from being sent in the channel. 
 If `all` is specified, then it applies to all channels.
