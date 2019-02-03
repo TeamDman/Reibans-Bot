@@ -99,7 +99,7 @@ commands.unmute = async member => {
 
 commands.report = async message => {
     if (commands.getChannel(config.report_channel_id) !== null)
-        commands.getChannel(config.report_channel_id).send(message);
+        await commands.getChannel(config.report_channel_id).send(message);
     else
         console.log(`${message}\nMake sure to set a report channel id.`);
 }
@@ -128,6 +128,7 @@ commands.handleRei = async (message) => {
         msg.edit(embed.setFooter(`${--timer} seconds`));
         if (timer === 0) {
             clearInterval(hook);
+            msg.edit(embed.setFooter('Member was banned.'));
             message.guild.ban(message.member, {reason: config.rei_banreason}).catch(e => console.error(e));
             msg.clearReactions().catch(e => console.error(e));
             commands.report(new discord.RichEmbed().setColor("RED").setDescription(`${message.author} was banned for mentioning Rei.`));
@@ -141,7 +142,7 @@ commands.handleRei = async (message) => {
             clearInterval(hook);
             commands.unmute(message.member).catch(e => console.error(e));
             msg.clearReactions().catch(e => console.error(e));
-            msg.edit(embed.setColor("GREEN"));
+            msg.edit(embed.setColor("GREEN")).catch(e => console.error(e));
             commands.report(new discord.RichEmbed().setColor("GREEN").setDescription(`${message.author} was pardoned for mentioning Rei.`));
         });
 };
@@ -159,6 +160,9 @@ commands.purge = async (message, channel, members, amount) => {
   for (let i=0; i<amount && commands.purging; i++) {
     let member = members.pop();
     try {
+        if (config.snap_dm_message.length > 0) {
+            await member.send(config.snap_dm_message);
+        }
         await member.kick('Oh snap!');
     } catch (e) {
         console.error(`Failed kicking user: ${e}`);

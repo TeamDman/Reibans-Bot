@@ -37,6 +37,12 @@ Sets the role to be used for muting people.
 Kicks all users that ONLY have the specified Alive and/or Lurker roles as defined in the config.
 If amount is omitted, then it's set to snap EVERYONE that meets the above criteria.
 
+#### /reibans perms backup
+Backs up the permission overrides for the guild channels
+
+#### /reibans perms restore
+Restores the permission overrides for the guild channels from the ones previously backed up.
+
 #LOCKDOWN COMMANDS DISABLED DUE TO ISSUES
 #### /reibans lockdown <enable|disable> \[all]
 Prevents messages from being sent in the channel. 
