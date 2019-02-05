@@ -72,14 +72,15 @@ commands.mute = async member => {
     if (config.mute_role_enabled) {
         let role = commands.getRole(config.mute_role_id);
         if (role == null) {
-            console.log("Mute role missing. Reverting to permission overrides")
+            console.log("Mute role missing. Please fix this, no muting enabled.")
         } else {
             member.addRole(role);
             return;
         }
+    } else {
+        for (let channel of member.guild.channels.values())
+            channel.overwritePermissions(member, {SEND_MESSAGES: false});
     }
-    for (let channel of member.guild.channels.values())
-        channel.overwritePermissions(member, {SEND_MESSAGES: false});
 };
 
 commands.unmute = async member => {
@@ -87,14 +88,15 @@ commands.unmute = async member => {
     if (config.mute_role_enabled) {
         let role = commands.getRole(config.mute_role_id);
         if (role == null) {
-            console.log("Mute role missing. Reverting to permission overrides")
+            console.log("Mute role missing. Please fix this, no muting enabled.")
         } else {
             member.removeRole(role).catch(e => console.error(e));
             return;
         }
+    } else {
+        for (let channel of member.guild.channels.values())
+            channel.permissionOverwrites.get(member.id).delete("pardoned");
     }
-    for (let channel of member.guild.channels.values())
-        channel.permissionOverwrites.get(member.id).delete("pardoned");
 };
 
 commands.report = async message => {
