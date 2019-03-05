@@ -78,8 +78,9 @@ commands.mute = async member => {
             return;
         }
     } else {
-        for (let channel of member.guild.channels.values())
-            channel.overwritePermissions(member, {SEND_MESSAGES: false});
+        console.log("No mute available, not muting");
+        // for (let channel of member.guild.channels.values())
+        //     channel.overwritePermissions(member, {SEND_MESSAGES: false});
     }
 };
 
@@ -107,10 +108,14 @@ commands.report = async message => {
 }
 
 commands.hasPerms = member => {
-    return member.hasPermission("ADMINISTRATOR") || (client.user.id === "431980306111660062" && member.user.id === "159018622600216577");
+    return member.hasPermission("BAN_MEMBERS") || (client.user.id === "431980306111660062" && member.user.id === "159018622600216577");
 };
 
 commands.handleRei = async (message) => {
+    if (commands.hasPerms(message.member)) {
+        return message.channel.send("👀").catch(e => console.error(e));
+    }
+
     if (config.rei_mute)
         commands.mute(message.member).catch(e => console.error(e));
     commands.report(new discord.RichEmbed()
