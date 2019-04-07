@@ -192,16 +192,26 @@ commands.purging = false;
 
 commands.cancelPurge = () => {
     commands.purging = true;
-}
+};
+
+commands.checkRei = async message => {
+    if (message.author.bot)
+        return;
+    if (commands.hasPerms(message.member))
+        return;
+    if (message.content.match(config.rei_irl))
+        return commands.handleRei(message);
+};
 
 commands.onMessage = async message => {
     if (message.author.bot)
         return;
+    
+    commands.checkRei(message);
+
     if (message.content.indexOf(config.prefix) !== 0)
-        if (message.content.match(config.rei_irl))
-            return commands.handleRei(message);
-        else
-            return;
+        return;
+
     if (!commands.hasPerms(message.member))
         return message.channel.send("You do not have permissions to use this command.");
     let args = message.content.slice(config.prefix.length).trim().split(/\s+/g);
@@ -215,6 +225,7 @@ commands.onMessage = async message => {
 commands.init = cl => {
     client = cl;
     client.on('message', message => commands.onMessage(message));
+    client.on('messageUpdate', message => commands.checkRei(message));
     return commands;
 };
 
