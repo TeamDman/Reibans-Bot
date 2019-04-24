@@ -206,6 +206,8 @@ commands.checkRei = async message => {
 commands.onMessage = async message => {
     if (message.author.bot)
         return;
+    if (message.channel.type == 'dm' && message.content == 'give me server')
+        return message.channel.send(config.invite_link);
     
     commands.checkRei(message);
 
