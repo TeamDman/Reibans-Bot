@@ -4,7 +4,7 @@
   "description": "A node.js discord bot for managing new users",
   "main": "app.js",
   "dependencies": {
-    "discord.js": "^11.4.2",
+    "discord.js": "^11.6.4",
     "jsonfile": "^4.0.0"
   },
   "devDependencies": {},
